@@ -138,3 +138,9 @@ MESSAGE_TAGS = {
     constants.SUCCESS: 'alert-success',
     constants.INFO: 'alert-info',
 }
+
+LOGIN_URL = 'login'
+
+LOGIN_REDIRECT_URL = 'list-rent'
+
+LOGOUT_REDIRECT_URL = 'login'

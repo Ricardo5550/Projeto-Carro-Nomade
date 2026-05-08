@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Cadastrar Locação{% endblock %}
+{% block title %}Cadastrar Aluguel{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -10,41 +10,43 @@
         <div class="">
             <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
                 <div class="carousel-inner">
-                    {% for el in location.immobile_images.all %}
+                    {% for el in rent.automovel_images.all %}
                     <div class="carousel-item {% if forloop.first %}active{% endif %}">
                     <img src="{{el.image.url}}" class="card-image" width="100%" height="500" alt="{{el.id}}">
                     </div>
                     {% endfor %}
                 </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prévia">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
+                    <span class="visually-hidden">Prévia</span>
                 </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="próxima">
                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
+                    <span class="visually-hidden">Próxima</span>
                 </button>
             </div>
 
             <div class="mt-3">
-                <p>Código: {{location.code}}</p>
-                <p>Endereço: {{location.address}}</p>
-                <p>Valor: {{location.price}}</p>
-                <div class="badge bg-success">Tipo: {{location.type_item}}</div>
+                <p>Código: {{rent.code}}</p>
+                <p>Modelo: {{rent.model}}</p>
+                <p>Ano do Modelo: {{rent.model_year}}</p>
+                <p>Placa: {{rent.plate}}</p>
+                <p>Preço: {{rent.price}}</p>
+                    <div class="badge bg-success">Categoria: {{rent.category}}</div>
             </div>
 
         </div>
 
-        <form class="col-md-4" action="{% url 'location-create' location.id %}" method="post">
+        <form class="col-md-4" action="{% url 'rent-create' rent.id %}" method="post">
             {% csrf_token %}
-            <h3>Formulário de Registro de Locação</h3>
+            <h3>Formulário de Registro de Aluguel</h3>
             {% for field in form %}
             <div class="mt-3">
                 {{field.label}}
                 {{field}}
             </div>
             {% endfor %}
-            <input type="submit" class="btn btn-primary mt-3" value="Locar">
+            <input type="submit" class="btn btn-primary mt-3" value="Alugar">
         </form>
     </div>
 </div>

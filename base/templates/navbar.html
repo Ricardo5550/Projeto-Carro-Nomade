@@ -6,19 +6,30 @@
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <a class="navbar-brand" href="#">Immobile</a>
+        <a class="navbar-brand" href="#">Carro Nômade</a>
 
         <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
 
             <ul class="navbar-nav gap-3 mb-2 mb-lg-0 mx-auto">
 
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="/">Início</a>
+                    <a class="nav-link" aria-current="page" href="{% url 'list-rent' %}">Início</a>
                 </li>
 
+                {% if user.is_authenticated %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'reports' %}">Relatório</a>
                 </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">Sair</a>
+                </li>
+                {% else %}
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                </li>
+                {% endif %}
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -28,12 +39,16 @@
                         <li>
                             <a class="dropdown-item" href="{% url 'client-create' %}">Cliente</a>
                         </li>
+
+                        {% if user.is_authenticated %}
                         <li>
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            <a class="dropdown-item" href="{% url 'immobile-create' %}">Imóvel</a>
+                            <a class="dropdown-item" href="{% url 'automovel-create' %}">Automóvel</a>
                         </li>
+                        {% endif %}
+                        
                     </ul>
                 </li> 
             </ul>

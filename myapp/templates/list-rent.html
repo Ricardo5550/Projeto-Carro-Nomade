@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Aluguéis{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    
+    <div class="cards">
+        {% for automovel in automoveis %}
+        <div class="card-item h-100">
+
+            <div id="carouselIndicators{{automovel.id}}" class="carousel slide" data-bs-ride="false">
+                <div class="carousel-indicators">
+                    {% for el in automovel.automovel_images.all %}
+                    {% if forloop.first %}
+                    <button type="button" data-bs-target="#carouselIndicators{{automovel.id}}" data-bs-slide-to="{{forloop.counter0}}" class="active" aria-current="true" aria-label="Slide {{forloop.counter0}}"></button>
+                    {% else %} 
+                    <button type="button" data-bs-target="#carouselIndicators{{automovel.id}}" data-bs-slide-to="{{forloop.counter0}}" aria-label="Slide {{forloop.counter0}}"></button>
+                    {% endif %}  
+                    {% endfor %}
+                </div>
+                <div class="carousel-inner">
+                    {% for el in automovel.automovel_images.all %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <img src="{{el.image.url}}" class="d-block w-100" style="height: 200px; object-fit: cover;" alt="{{el.id}}">
+                    </div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselIndicators{{automovel.id}}" data-bs-slide="prévia">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Prévia</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselIndicators{{automovel.id}}" data-bs-slide="próxima">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Próxima</span>
+                </button>
+            </div>
+            
+            <div class="card-body p-3">
+                <p>Código: {{automovel.code}}</p>
+                <p>Modelo: {{automovel.model}}</p>
+                <p>Ano do Modelo: {{automovel.model_year}}</p>
+                <p>Placa: {{automovel.plate}}</p>
+                <p>Preço: {{automovel.price}}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="badge bg-success">Categoria: {{automovel.category}}</div>
+                    <a class="btn btn-primary" href="{% url 'rent-create' automovel.id %}">Alugar</a>
+                </div>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+            

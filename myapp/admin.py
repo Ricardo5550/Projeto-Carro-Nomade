@@ -3,13 +3,13 @@ from myapp import models
 
 # Register your models here.
 admin.site.register(models.Client)
-admin.site.register(models.RegisterLocation)
+admin.site.register(models.RegisterRent)
 
-class ImmobileImageInlineAdmin(admin.TabularInline):
-    model = models.ImmobileImage
+class AutomovelImageInlineAdmin(admin.TabularInline):
+    model = models.AutomovelImage
     extra = 0
 
-class ImmobileAdmin(admin.ModelAdmin):
-    inlines = [ImmobileImageInlineAdmin]
+class AutomovelAdmin(admin.ModelAdmin):
+    inlines = [AutomovelImageInlineAdmin]
 
-admin.site.register(models.Immobile, ImmobileAdmin)
+admin.site.register(models.Automovel, AutomovelAdmin)

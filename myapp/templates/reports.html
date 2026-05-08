@@ -39,25 +39,25 @@
 
         <!-- Filtro de status -->
         <div class="col-md-2">
-            <label for="statusFilter" class="form-label">Status da Locação</label>
+            <label for="statusFilter" class="form-label">Status do Aluguel</label>
             <form action="{% url 'reports' %}">
-                <select name="is_locate" id="statusFilter" class="form-select" onchange="this.form.submit()">
+                <select name="is_rented" id="statusFilter" class="form-select" onchange="this.form.submit()">
                     <option value="">Todos</option>
-                    <option value="True" {% if request.GET.is_locate == 'True' %}selected{% endif %}>Locado</option>
-                    <option value="False" {% if request.GET.is_locate == 'False' %}selected{% endif %}>Não-Locado</option>
+                    <option value="True" {% if request.GET.is_rented == 'True' %}selected{% endif %}>Alugado</option>
+                    <option value="False" {% if request.GET.is_rented == 'False' %}selected{% endif %}>Não-Alugado</option>
                 </select>
             </form>
         </div>
 
         <!-- Filtro de tipo -->
         <div class="col-md-2">
-            <label for="typeFilter" class="form-label">Tipo de Imóvel</label>
+            <label for="typeFilter" class="form-label">Tipo de Automóvel</label>
             <form action="{% url 'reports' %}">
-                <select name="type_item" id="typeFilter" class="form-select" onchange="this.form.submit()">
+                <select name="category" id="typeFilter" class="form-select" onchange="this.form.submit()">
                     <option value="">Todos</option>
-                    <option value="APARTAMENTO" {% if request.GET.type_item == 'APARTAMENTO' %}selected{% endif %}>Apartamento</option>
-                    <option value="KITNET" {% if request.GET.type_item == 'KITNET' %}selected{% endif %}>Kitnet</option>
-                    <option value="CASA" {% if request.GET.type_item == 'CASA' %}selected{% endif %}>Casa</option>
+                    <option value="HATCH" {% if request.GET.category == 'HATCH' %}selected{% endif %}>Hatch</option>
+                    <option value="SEDAN" {% if request.GET.category == 'SEDAN' %}selected{% endif %}>Sedan</option>
+                    <option value="SUV" {% if request.GET.category == 'SUV' %}selected{% endif %}>SUV</option>
                 </select>
             </form>
         </div>
@@ -79,35 +79,41 @@
                 <th>Registro Final</th>
                 <th>Cliente</th>
                 <th>Código</th>
-                <th>Imóvel</th>
+                <th>Categoria</th>
+                <th>Modelo</th>
+                <th>Ano do Modelo</th>
+                <th>Placa</th>
                 <th>Preço</th>
-                <th>Locado</th>
+                <th>Alugado</th>
             </tr>
             
             <tbody>
-                {% for immobile in immobiles %}
+                {% for automovel in automoveis %}
                 <tr>
-                    <td>{{ immobile.id }}</td>
+                    <td>{{ automovel.id }}</td>
                     <td>
-                        {% for location in immobile.reg_location.all %}
-                            {{ location.dt_start|date:"d/m/Y" }}
+                        {% for rent in automovel.reg_rent.all %}
+                            {{ rent.dt_start|date:"d/m/Y" }}
                         {% endfor %}
                     </td>
                     <td>
-                        {% for location in immobile.reg_location.all %}
-                            {{ location.dt_end|date:"d/m/Y" }}
+                        {% for rent in automovel.reg_rent.all %}
+                            {{ rent.dt_end|date:"d/m/Y" }}
                         {% endfor %}
                     </td>
                     <td>
-                        {% for location in immobile.reg_location.all %}
-                            {{ location.client }}
+                        {% for rent in automovel.reg_rent.all %}
+                            {{ rent.client }}
                         {% endfor %}
                     </td>
-                    <td>{{ immobile.code }}</td>
-                    <td>{{ immobile.type_item }}</td>
-                    <td>R$ {{ immobile.price }}</td>
+                    <td>{{ automovel.code }}</td>
+                    <td>{{ automovel.category }}</td>
+                    <td>{{ automovel.model }}</td>
+                    <td>{{ automovel.model_year }}</td>
+                    <td>{{ automovel.plate }}</td>
+                    <td>R$ {{ automovel.price }}</td>
                     <td>
-                        {% if immobile.is_locate %}
+                        {% if automovel.is_rented %}
                             <i class="fas fa-check-circle text-success fa-2x"></i>
                         {% else %}
                             <i class="fas fa-minus-circle text-danger fa-2x"></i>

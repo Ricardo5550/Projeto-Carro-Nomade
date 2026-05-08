@@ -1,81 +1,108 @@
 from django.shortcuts import render, redirect
 from django.db.models import Q
-from .forms import ClientForm, ImmobileForm, RegisterLocationForm
-from .models import Immobile, ImmobileImage
+from .forms import ClientForm, AutomovelForm, RegisterRentForm, CustomUserCreationForm, CustomLoginForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, logout
+from .models import Automovel, AutomovelImage
 
 # Create your views here.
-def list_location(request):
-    immobiles = Immobile.objects.filter(is_locate=False)
-    context = {'immobiles': immobiles}
-    return render(request, 'list-location.html', context)
+@login_required
+def list_rent(request):
+    automoveis = Automovel.objects.filter(is_rented=False)
+    context = {'automoveis': automoveis}
+    return render(request, 'list-rent.html', context)
 
 def form_client(request):
-    form = ClientForm()
+    u_form = CustomUserCreationForm()
+    c_form = ClientForm()
     if request.method == 'POST':
-        form = ClientForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('list-location')
-    return render(request, 'form-client.html', {'form': form})
+        u_form = CustomUserCreationForm(request.POST)
+        c_form = ClientForm(request.POST)
+        if u_form.is_valid() and c_form.is_valid():
+            user = u_form.save()
+            client = c_form.save(commit=False)
+            client.user = user
+            client.save()
+            return redirect('login')
+    return render(request, 'form-client.html', {'u_form': u_form, 'c_form': c_form})
 
-def form_immobile(request):
-    form = ImmobileForm()
+def form_login(request):
+    form = CustomLoginForm()
+
     if request.method == 'POST':
-        form = ImmobileForm(request.POST, request.FILES)
+        form = CustomLoginForm(data=request.POST)
         if form.is_valid():
-            immobile = form.save()
-            files = request.FILES.getlist('immobile') ## Pega todas as imagens.
+            user = form.get_user()
+            login(request, user)
+            return redirect('list-rent')
+    return render(request, 'form-login.html', {'login_form': form})
+
+@login_required
+def form_logout(request):
+    logout(request)
+    return redirect('login')
+
+@login_required
+def form_automovel(request):
+    form = AutomovelForm()
+    if request.method == 'POST':
+        form = AutomovelForm(request.POST, request.FILES)
+        if form.is_valid():
+            automovel = form.save()
+            files = request.FILES.getlist('automovel') ## Pega todas as imagens.
             if files:
                 for f in files:
-                    ImmobileImage.objects.create( ## Cria instância para imagens.
-                        immobile=immobile,
+                    AutomovelImage.objects.create( ## Cria instância para imagens.
+                        automovel=automovel,
                         image=f)
-            return redirect('list-location')
-    return render(request, 'form-immobile.html', {'form': form})
+            return redirect('list-rent')
+    return render(request, 'form-automovel.html', {'form': form})
 
-def form_location(request, id):
-    get_locate = Immobile.objects.get(id=id) ## Pega objeto.
-    form = RegisterLocationForm()
+@login_required
+def form_rent(request, id):
+    get_rented = Automovel.objects.get(id=id) ## Pega objeto.
+    form = RegisterRentForm()
     if request.method == 'POST':
-        form = RegisterLocationForm(request.POST)
+        form = RegisterRentForm(request.POST)
         if form.is_valid():
-            location_form = form.save(commit=False)
-            location_form.immobile = get_locate ## Salva id do imóvel.
-            location_form.save()
+            rent_form = form.save(commit=False)
+            rent_form.automovel = get_rented ## Salva id do automóvel.
+            rent_form.save()
 
-            ## Muda status do imóvel para "Alugado".
-            immo = Immobile.objects.get(id=id)
-            immo.is_locate = True ## Passa a ser True.
-            immo.save()
-            return redirect('list-location') ## Retorna para a Lista.
+            ## Muda status do automóvel para "Alugado".
+            automovel = Automovel.objects.get(id=id)
+            automovel.is_rented = True ## Passa a ser True.
+            automovel.save()
+            return redirect('list-rent') ## Retorna para a Lista.
         
-    context = {'form': form, 'location': get_locate}
-    return render(request, 'form-location.html', context)
+    context = {'form': form, 'rent': get_rented}
+    return render(request, 'form-rent.html', context)
 
 ## Relatório.
+@login_required
 def reports(request): ## Relatórios.
-    immobile = Immobile.objects.all()
+    automovel = Automovel.objects.all()
 
     get_client = request.GET.get('client')
-    get_locate = request.GET.get('is_locate')
-    get_type_item = request.GET.get('type_item')
+    get_rented = request.GET.get('is_rented')
+    get_category = request.GET.get('category')
     get_dt_start = request.GET.get('dt_start')
     get_dt_end = request.GET.get('dt_end')
     print(get_dt_end, get_dt_start)
 
     if get_client: ## Filtra por nome e e-mail do cliente.
-        immobile = Immobile.objects.filter(
-            Q(reg_location__client__nome__icontains=get_client) | 
-            Q(reg_location__client__email__icontains=get_client))
+        automovel = Automovel.objects.filter(
+            Q(reg_rent__client__nome__icontains=get_client) | 
+            Q(reg_rent__client__email__icontains=get_client))
         
     if get_dt_start and get_dt_end: ## Por data.
-        immobile = Immobile.objects.filter(
-            reg_location__create_at__range=[get_dt_start, get_dt_end])
+        automovel = Automovel.objects.filter(
+            reg_rent__create_at__range=[get_dt_start, get_dt_end])
 
-    if get_locate:
-        immobile = Immobile.objects.filter(is_locate=get_locate)
+    if get_rented:
+        automovel = Automovel.objects.filter(is_rented=get_rented)
 
-    if get_type_item:
-        immobile = Immobile.objects.filter(type_item=get_type_item)
+    if get_category:
+        automovel = Automovel.objects.filter(category=get_category)
 
-    return render(request, 'reports.html', {'immobiles': immobile})
+    return render(request, 'reports.html', {'automoveis': automovel})

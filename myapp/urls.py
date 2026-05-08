@@ -2,13 +2,17 @@ from django.urls import path
 from myapp import views
 
 urlpatterns = [
-    path('', views.list_location, name='list-location'),
+    path('', views.form_login, name='login'),
 
-    path('form-client/', views.form_client, name='client-create'), 
+    path('list-rent/', views.list_rent, name='list-rent'),
 
-    path('form-immobile/', views.form_immobile, name='immobile-create'),
+    path('form-client/', views.form_client, name='client-create'),
 
-    path('form-location/<int:id>/', views.form_location, name='location-create'),
+    path('form-logout/', views.form_logout, name='logout'), 
+
+    path('form-automovel/', views.form_automovel, name='automovel-create'),
+
+    path('form-rent/<int:id>/', views.form_rent, name='rent-create'),
 
     path('reports/', views.reports, name='reports'),
 ]

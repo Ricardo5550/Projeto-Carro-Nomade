@@ -1,6 +1,7 @@
 /tmp
 passenger_wsgi.py 
 .venv
+.env
 db.sqlite3
 /static_media
 static_media

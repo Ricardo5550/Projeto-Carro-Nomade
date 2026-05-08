@@ -12,13 +12,64 @@
 
         <form class="col-md-4" action="{% url 'client-create' %}" method="post">
             {% csrf_token %}
+
+            {% if u_form.errors or c_form.errors %}
+                <div class="alert alert-danger">
+                    <h5 class="alert-heading">Ops! Verifique os dados abaixo:</h5>
+        
+                    {# Erros do formulário de usuário #}
+                    {% for field in u_form %}
+                        {% for error in field.errors %}
+                            <div><strong>{{ field.label }}:</strong> {{ error }}</div>
+                        {% endfor %}
+                    {% endfor %}
+
+                    {# Erros do formulário de cliente #}
+                    {% for field in c_form %}
+                        {% for error in field.errors %}
+                            <div><strong>{{ field.label }}:</strong> {{ error }}</div>
+                        {% endfor %}
+                    {% endfor %}
+
+                    {# Erros gerais #}
+                    {% for error in u_form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             <h3>Cadastrar Cliente</h3>
-            {% for field in form %}
+
             <div class="mt-3">
-                {{field.label}}
-                {{field}}
+                <label>Nome de Usuário</label>
+                {{ u_form.username }}
             </div>
-            {% endfor %}
+
+            <div class="mt-3">
+                <label>Nome Completo</label>
+                {{ c_form.nome }}
+            </div>
+
+            <div class="mt-3">
+                <label>E-mail</label>
+                {{ c_form.email }}
+            </div>
+
+            <div class="mt-3">
+                <label>Telefone</label>
+                {{ c_form.telefone }}
+            </div>
+
+            <div class="mt-3">
+                <label>Senha</label>
+                {{ u_form.password1 }}
+            </div>
+
+            <div class="mt-3">
+                <label>Confirmação de Senha</label>
+                {{ u_form.password2 }}
+            </div>
+
             <input type="submit" class="btn btn-primary mt-3" value="Salvar">
         </form>
 

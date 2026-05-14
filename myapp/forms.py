@@ -27,7 +27,7 @@ class ClientForm(forms.ModelForm):
 
 ## Cadastra um Automóvel.
 class AutomovelForm(forms.ModelForm):
-    automovel = forms.ImageField(label="Automóvel",widget=forms.ClearableFileInput(attrs={'multiple': True}))
+    automovel = forms.ImageField(label="Automóvel", widget=forms.ClearableFileInput())
     class Meta:
         model = Automovel
         fields = '__all__'

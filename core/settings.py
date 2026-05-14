@@ -144,3 +144,18 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'list-rent'
 
 LOGOUT_REDIRECT_URL = 'login'
+
+# The default backend for sending emails via SMTP
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# Server details (e.g., smtp.gmail.com, smtp.mailtrap.io)
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587  # Usually 587 for TLS or 465 for SSL
+
+# Authentication
+EMAIL_HOST_USER = 'ricardofilho216@gmail.com'
+EMAIL_HOST_PASSWORD = ''  # Use an App Password for Gmail/Outlook
+
+# Security
+EMAIL_USE_TLS = True   # Use True for port 587
+EMAIL_USE_SSL = False  # Use True for port 46

@@ -67,3 +67,29 @@ class RegisterRent(models.Model):
         verbose_name = 'Registrar Aluguel'
         verbose_name_plural = 'Registrar Aluguéis'
         ordering = ['-id']
+
+class CodigoVerificacao(models.Model):
+    codigo = models.CharField('Código', max_length=100)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    expira_em = models.DateTimeField('Expira em: ')
+
+    def __str__(self):
+        return self.codigo
+    
+    class Meta:
+        verbose_name = 'Código de Verificação'
+        verbose_name_plural = 'Códigos de Verificação'
+        ordering = ['-id']
+
+class ControleAcesso(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    counter = models.IntegerField('Contador de Acessos', default=0)
+    bloqueado_ate = models.DateTimeField('Bloqueado até: ', null=True, blank=True)
+
+    def __str__(self):
+        return self.user.username
+    
+    class Meta:
+        verbose_name = 'Controle de Acesso'
+        verbose_name_plural = 'Controles de Acesso'
+        ordering = ['-bloqueado_ate']

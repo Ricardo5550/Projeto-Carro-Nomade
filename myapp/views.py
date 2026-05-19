@@ -1,9 +1,15 @@
 from django.shortcuts import render, redirect
 from django.db.models import Q
 from .forms import ClientForm, AutomovelForm, RegisterRentForm, CustomUserCreationForm, CustomLoginForm
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
-from .models import Automovel, AutomovelImage
+from .utils import send_code_email
+from core.settings import EMAIL_HOST_USER
+import secrets
+from datetime import timedelta
+from django.utils import timezone
+from .models import Automovel, AutomovelImage, CodigoVerificacao, ControleAcesso
 
 # Create your views here.
 @login_required
@@ -31,11 +37,79 @@ def form_login(request):
 
     if request.method == 'POST':
         form = CustomLoginForm(data=request.POST)
+
+        username = request.POST.get('username')
+        user = User.objects.filter(username=username).first()
+
+        if user:
+            controle_acesso, created = ControleAcesso.objects.get_or_create(user=user)
+            if controle_acesso.bloqueado_ate:
+
+                if timezone.now() < controle_acesso.bloqueado_ate:
+                    return render(request, 'form-login.html', {'login_form': form, 'error': 'Acesso bloqueado. Tente novamente após 5 minutos.'})
+            
+                else:
+                    controle_acesso.counter = 0
+                    controle_acesso.bloqueado_ate = None
+                    controle_acesso.save()
+            
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('list-rent')
+
+            controle_acesso, created = ControleAcesso.objects.get_or_create(user=user)
+            controle_acesso.counter = 0
+            controle_acesso.bloqueado_ate = None
+            controle_acesso.save()
+
+            codigo_gerado = secrets.SystemRandom().randint(100000, 999999)
+
+            send_code_email(
+                user.username,
+                codigo_gerado,
+                EMAIL_HOST_USER,
+                user.email
+            )
+
+            CodigoVerificacao.objects.create(
+                codigo=codigo_gerado,
+                user=user,
+                expira_em=timezone.now() + timedelta(minutes=5)
+            )
+
+            return redirect('verificar-codigo')
+        
+        else:
+            if user:
+                controle_acesso, created = ControleAcesso.objects.get_or_create(user=user)
+                controle_acesso.counter += 1
+
+                if controle_acesso.counter >= 5:
+                    controle_acesso.bloqueado_ate = timezone.now() + timedelta(minutes=5)
+                
+                controle_acesso.save()
+
     return render(request, 'form-login.html', {'login_form': form})
+
+def form_verificacao(request):
+    if request.method == 'POST':
+        codigo_input = request.POST.get('codigo')
+        user = request.user
+
+        try:
+            codigo_obj = CodigoVerificacao.objects.get(user=user, codigo=codigo_input)
+            if codigo_obj.expira_em > timezone.now():
+                login(request, codigo_obj.user)
+                codigo_obj.delete()
+                return redirect('list-rent')
+            else:
+                codigo_obj.delete()
+                logout(request)
+                return redirect('login')
+        except CodigoVerificacao.DoesNotExist:
+            return render(request, 'form-verificacao.html', {'error': 'Código inválido.'})
+
+    return render(request, 'form-verificacao.html')
 
 @login_required
 def form_logout(request):

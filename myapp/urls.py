@@ -8,7 +8,9 @@ urlpatterns = [
 
     path('form-client/', views.form_client, name='client-create'),
 
-    path('form-logout/', views.form_logout, name='logout'), 
+    path('form-logout/', views.form_logout, name='logout'),
+
+    path('form-verificacao/', views.form_verificacao, name='verificar-codigo'), 
 
     path('form-automovel/', views.form_automovel, name='automovel-create'),
 

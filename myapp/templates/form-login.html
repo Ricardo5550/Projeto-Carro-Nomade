@@ -12,7 +12,11 @@
             {% csrf_token %}
             <h3>Acessar</h3>
 
-            {% if login_form.errors %}
+            {% if error %}
+                <div class="alert alert-warning">
+                    {{ error }}
+                </div>
+            {% elif login_form.errors %}
                 <div class="alert alert-danger">
                     Nome de Usuário ou senha incorretos.
                 </div>

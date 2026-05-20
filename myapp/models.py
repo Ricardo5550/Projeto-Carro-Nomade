@@ -93,3 +93,16 @@ class ControleAcesso(models.Model):
         verbose_name = 'Controle de Acesso'
         verbose_name_plural = 'Controles de Acesso'
         ordering = ['-bloqueado_ate']
+
+class CodigoRecuperacao(models.Model):
+    codigo = models.CharField('Código', max_length=100)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    expira_em = models.DateTimeField('Expira em: ')
+
+    def __str__(self):
+        return self.codigo
+    
+    class Meta:
+        verbose_name = 'Código de Recuperação'
+        verbose_name_plural = 'Códigos de Recuperação'
+        ordering = ['-id']

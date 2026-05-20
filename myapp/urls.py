@@ -10,7 +10,13 @@ urlpatterns = [
 
     path('form-logout/', views.form_logout, name='logout'),
 
-    path('form-verificacao/', views.form_verificacao, name='verificar-codigo'), 
+    path('form-verificacao/', views.form_verificacao, name='verificar-codigo'),
+
+    path('form-recuperacao/', views.form_recuperacao, name='pedir-recuperacao'),
+
+    path('form-verificar-recuperacao/', views.form_verificar_recuperacao, name='validar-codigo-recuperacao'),
+
+    path('form-nova-senha/', views.form_nova_senha, name='definir-nova-senha'), 
 
     path('form-automovel/', views.form_automovel, name='automovel-create'),
 

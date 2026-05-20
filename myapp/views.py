@@ -9,7 +9,7 @@ from core.settings import EMAIL_HOST_USER
 import secrets
 from datetime import timedelta
 from django.utils import timezone
-from .models import Automovel, AutomovelImage, CodigoVerificacao, ControleAcesso
+from .models import Automovel, AutomovelImage, CodigoVerificacao, ControleAcesso, CodigoRecuperacao
 
 # Create your views here.
 @login_required
@@ -110,6 +110,83 @@ def form_verificacao(request):
             return render(request, 'form-verificacao.html', {'error': 'Código inválido.'})
 
     return render(request, 'form-verificacao.html')
+
+def form_recuperacao(request):
+    if request.method == 'GET':
+        return render(request, 'form-recuperacao.html')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        user = User.objects.filter(username=username).first()
+
+        if user:
+            codigo_gerado = secrets.SystemRandom().randint(100000, 999999)
+
+            send_code_email(
+                user.username,
+                codigo_gerado,
+                EMAIL_HOST_USER,
+                user.email
+            )
+
+            CodigoRecuperacao.objects.create(
+                codigo=codigo_gerado,
+                user=user,
+                expira_em=timezone.now() + timedelta(minutes=5)
+            )
+
+            return redirect('validar-codigo-recuperacao')
+        
+        else:
+            return render(request, 'form-recuperacao.html', {'error': 'Nome de Usuário não encontrado.'})
+
+    return render(request, 'form-recuperacao.html')
+
+def form_verificar_recuperacao(request):
+    if request.method == 'GET':
+        return render(request, 'verificar-recuperacao.html')
+    
+    if request.method == 'POST':
+        codigo = request.POST.get('codigo')
+
+        try:
+            codigo_obj = CodigoRecuperacao.objects.get(codigo=codigo)
+            if codigo_obj.expira_em > timezone.now():
+                request.session['recuperacao_user_id'] = codigo_obj.user.id
+                codigo_obj.delete()
+                return redirect('definir-nova-senha')
+            else:
+                codigo_obj.delete()
+                return render(request, 'verificar-recuperacao.html', {'error': 'Código expirado.'})
+        except CodigoRecuperacao.DoesNotExist:
+            return render(request, 'verificar-recuperacao.html', {'error': 'Código inválido.'})
+
+    return render(request, 'verificar-recuperacao.html')
+
+def form_nova_senha(request):
+    user_id = request.session.get('recuperacao_user_id')
+
+    if not user_id:
+        return redirect('login')
+
+    if request.method == 'GET':
+        return render(request, 'nova-senha.html')
+    
+    if request.method == 'POST':
+        nova_senha = request.POST.get('nova_senha')
+        confirmacao_senha = request.POST.get('confirmar_senha')
+
+        if nova_senha != confirmacao_senha:
+            return render(request, 'nova-senha.html', {'error': 'As senhas não coincidem.'})
+
+        try:
+            user = User.objects.get(id=user_id)
+            user.set_password(nova_senha)
+            user.save()
+            del request.session['recuperacao_user_id']
+            return redirect('login')
+        except User.DoesNotExist:
+            return redirect('pedir-recuperacao')
 
 @login_required
 def form_logout(request):

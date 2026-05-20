@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Validar Recuperação{% endblock %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-center mt-5">
+        
+        <form class="col-md-5 card p-4 shadow-sm" action="{% url 'validar-codigo-recuperacao' %}" method="post">
+            {% csrf_token %}
+            
+            <h3 class="mb-3 text-center">Validar Recuperação</h3>
+
+            <p class="text-muted text-center small">
+                Enviamos um código de recuperação único de 6 dígitos para o seu e-mail cadastrado. 
+                Por favor, insira o código abaixo para liberar o seu acesso.
+            </p>
+
+            {% if error %}
+                <div class="alert alert-danger text-center py-2">
+                    Código incorreto, inválido ou expirado.
+                </div>
+            {% endif %}
+
+            <div class="mt-4 mb-3">
+                <label class="form-label font-weight-bold">Código de 6 dígitos</label>
+                <input type="text" name="codigo" class="form-control text-center fs-4" placeholder="000000" maxlength="6" required autocomplete="off">
+            </div>
+
+            <input type="submit" class="btn btn-primary w-100 mt-3" value="Validar Código de Recuperação">
+        </form>
+        
+    </div>
+</div>
+{% endblock %}

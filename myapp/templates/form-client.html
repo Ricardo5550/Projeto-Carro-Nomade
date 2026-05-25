@@ -70,7 +70,21 @@
                 {{ u_form.password2 }}
             </div>
 
-            <input type="submit" class="btn btn-primary mt-3" value="Salvar">
+            <input type="checkbox" id="termos" name="termos" required>
+            <label for="termos">
+                Li e aceito os <a href="{% url 'termos-uso' %}" target="_blank">Termos de Uso</a>
+            </label>
+
+            <br>
+
+            <input type="checkbox" id="privacidade" name="privacidade" required>
+            <label for="privacidade">
+                Li e aceito a <a href="{% url 'politica-privacidade' %}" target="_blank">Política de Privacidade</a>
+            </label>
+
+            <br>
+
+            <input type="submit" class="btn btn-primary mt-4 mb-5" value="Cadastrar">
         </form>
 
     </div>

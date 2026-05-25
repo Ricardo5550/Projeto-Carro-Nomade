@@ -16,7 +16,15 @@ urlpatterns = [
 
     path('form-verificar-recuperacao/', views.form_verificar_recuperacao, name='validar-codigo-recuperacao'),
 
-    path('form-nova-senha/', views.form_nova_senha, name='definir-nova-senha'), 
+    path('form-nova-senha/', views.form_nova_senha, name='definir-nova-senha'),
+
+    path('form-termos/', views.form_termos_uso, name='termos-uso'),
+
+    path('form-politica-privacidade/', views.form_politica_privacidade, name='politica-privacidade'),
+
+    path('form-perfil/', views.form_perfil, name='perfil'),
+
+    path('form-excluir-conta/', views.form_excluir_conta, name='excluir-conta'),
 
     path('form-automovel/', views.form_automovel, name='automovel-create'),
 

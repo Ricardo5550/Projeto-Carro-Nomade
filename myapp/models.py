@@ -106,3 +106,20 @@ class CodigoRecuperacao(models.Model):
         verbose_name = 'Código de Recuperação'
         verbose_name_plural = 'Códigos de Recuperação'
         ordering = ['-id']
+
+class LogAuditoria(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    acao = models.CharField('Ação', max_length=100)
+    descricao = models.TextField('Descrição', blank=True, null=True)
+    timestamp = models.DateTimeField('Data e Hora', auto_now_add=True)
+
+    def __str__(self):
+        if self.usuario:
+            return f"{self.usuario.username} - {self.acao}"
+        
+        return f"Usuário Desconecido - {self.acao}"
+    
+    class Meta:
+        verbose_name = 'Log de Auditoria'
+        verbose_name_plural = 'Logs de Auditoria'
+        ordering = ['-timestamp']

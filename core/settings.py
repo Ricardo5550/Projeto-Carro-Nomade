@@ -25,9 +25,6 @@ STATIC_DIR=os.path.join(BASE_DIR,'static')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-6+hu2r%xgg4tt75r_c3d_b@ri8#7_3t47#y4b++seht=8$x_r6'
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -37,6 +34,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'core',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -160,6 +158,44 @@ EMAIL_PORT = 587  # Usually 587 for TLS or 465 for SSL
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  # Your email address
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Use an App Password for Gmail/Outlook
 
+SECRET_KEY = os.getenv('SECRET_KEY')  # Use a secure, random key in production
+
 # Security
 EMAIL_USE_TLS = True   # Use True for port 587
 EMAIL_USE_SSL = False  # Use True for port 46
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'auditoria': {
+            'format': '{asctime} - {levelname} - {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'arquivo_log': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'carro_nomade_seguranca.log'),
+            'formatter': 'auditoria',
+            'encoding': 'utf-8',
+        },
+    },
+    'loggers': {
+        'django_auditoria': {
+            'handlers': ['arquivo_log'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+]
+
+CERT_FILE = os.path.join(BASE_DIR, 'certificates', 'cert.pem')
+KEY_FILE = os.path.join(BASE_DIR, 'certificates', 'key.pem')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True

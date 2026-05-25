@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
-{% block title %}Verificação de Segurança{% endblock %}
+{% block title %}Autenticação{% endblock %}
 {% load static %}
 
 {% block content %}
 <div class="container">
     <div class="d-flex justify-content-center mt-5">
         
-        <form class="col-md-5 card p-4 shadow-sm" action="{% url 'verificar-codigo' %}" method="post">
+        <form class="col-md-5 card p-4 shadow-sm border-dark" action="{% url 'verificar-codigo' %}" method="post">
             {% csrf_token %}
             
-            <h3 class="mb-3 text-center">Verificação de Segurança</h3>
+            <h3 class="mb-3 text-center">Autenticação</h3>
 
             <p class="text-muted text-center small">
-                Enviamos um código de autenticação único de 6 dígitos para o seu e-mail cadastrado. 
-                Por favor, insira o código abaixo para liberar o seu acesso.
+                Sua credencial foi validada com sucesso! Para proteger sua conta, enviamos um código de acesso único de 6 dígitos para o seu e-mail. 
+                Insira-o abaixo para entrar no sistema.
             </p>
 
             {% if error %}
@@ -25,9 +25,12 @@
             <div class="mt-4 mb-3">
                 <label class="form-label font-weight-bold">Código de 6 dígitos</label>
                 <input type="text" name="codigo" class="form-control text-center fs-4" placeholder="000000" maxlength="6" required autocomplete="off">
+                <div class="form-text text-danger text-center mt-1" style="font-size: 0.8rem;">
+                    Nunca compartilhe este código com ninguém.
+                </div>
             </div>
 
-            <input type="submit" class="btn btn-primary w-100 mt-3" value="Confirmar Identidade">
+            <input type="submit" class="btn btn-dark w-100 mt-3" value="Acessar Sistema">
         </form>
         
     </div>

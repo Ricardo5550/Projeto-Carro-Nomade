@@ -3,13 +3,15 @@ from django.db.models import Q
 from .forms import ClientForm, AutomovelForm, RegisterRentForm, CustomUserCreationForm, CustomLoginForm
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, update_session_auth_hash
 from .utils import send_code_email
 from core.settings import EMAIL_HOST_USER
 import secrets
+import logging
+logger = logging.getLogger('django_auditoria')
 from datetime import timedelta
 from django.utils import timezone
-from .models import Automovel, AutomovelImage, CodigoVerificacao, ControleAcesso, CodigoRecuperacao
+from .models import Automovel, AutomovelImage, CodigoVerificacao, ControleAcesso, CodigoRecuperacao, LogAuditoria
 
 # Create your views here.
 @login_required
@@ -54,7 +56,7 @@ def form_login(request):
                     controle_acesso.save()
             
         if form.is_valid():
-            user = form.get_user()
+           # user = form.get_user()
             login(request, user)
 
             controle_acesso, created = ControleAcesso.objects.get_or_create(user=user)
@@ -68,7 +70,7 @@ def form_login(request):
                 user.username,
                 codigo_gerado,
                 EMAIL_HOST_USER,
-                user.email
+                user.client.email
             )
 
             CodigoVerificacao.objects.create(
@@ -126,8 +128,16 @@ def form_recuperacao(request):
                 user.username,
                 codigo_gerado,
                 EMAIL_HOST_USER,
-                user.email
+                user.client.email
             )
+
+            LogAuditoria.objects.create(
+                usuario=user,
+                acao="SOLICITAÇÃO",
+                descricao="Solicitação de recuperação de senha iniciada. Código enviado por e-mail."
+            )
+
+            logger.info(f"Solicitação de recuperação de senha iniciada para o usuário: {user.username}")
 
             CodigoRecuperacao.objects.create(
                 codigo=codigo_gerado,
@@ -154,11 +164,39 @@ def form_verificar_recuperacao(request):
             if codigo_obj.expira_em > timezone.now():
                 request.session['recuperacao_user_id'] = codigo_obj.user.id
                 codigo_obj.delete()
+
+                LogAuditoria.objects.create(
+                    usuario=codigo_obj.user,
+                    acao="VERIFICAÇÃO_SUCESSO",
+                    descricao="Código de segurança inserido e validado com sucesso."
+                )
+
+                logger.info(f"Código de segurança validado com sucesso para o usuário: {codigo_obj.user.username}")
+
                 return redirect('definir-nova-senha')
             else:
                 codigo_obj.delete()
+
+                LogAuditoria.objects.create(
+                    usuario=codigo_obj.user,
+                    acao="VERIFICAÇÃO_FALHA",
+                    descricao="Tentativa de validação com código expirado."
+                )
+
+                logger.warning(f"Código de segurança expirado para o usuário: {codigo_obj.user.username}")
+                
                 return render(request, 'verificar-recuperacao.html', {'error': 'Código expirado.'})
+
         except CodigoRecuperacao.DoesNotExist:
+
+            LogAuditoria.objects.create(
+                usuario=None,
+                acao="VERIFICAÇÃO_FALHA",
+                descricao="Tentativa de validação com código inválido."
+            )
+
+            logger.warning(f"Tentativa de código de segurança inválido para o usuário: {codigo}")
+
             return render(request, 'verificar-recuperacao.html', {'error': 'Código inválido.'})
 
     return render(request, 'verificar-recuperacao.html')
@@ -177,16 +215,74 @@ def form_nova_senha(request):
         confirmacao_senha = request.POST.get('confirmar_senha')
 
         if nova_senha != confirmacao_senha:
+
+            LogAuditoria.objects.create(
+                usuario=User.objects.get(id=user_id),
+                acao="REDEFINIÇÃO_FALHA",
+                descricao="Tentativa de redefinição de senha com senhas não coincidentes."
+            )
+
+            logger.warning(f"Tentativa de redefinição de senha com senhas não coincidentes para o usuário: {user_id}")
+
             return render(request, 'nova-senha.html', {'error': 'As senhas não coincidem.'})
 
         try:
             user = User.objects.get(id=user_id)
             user.set_password(nova_senha)
             user.save()
+
+            LogAuditoria.objects.create(
+                usuario=user,
+                acao="REDEFINIÇÃO_SUCESSO",
+                descricao="Senha redefinida com sucesso no Banco de Dados com hash criptográfico."
+            )
+
+            logger.info(f"Senha redefinida com sucesso para o usuário: {user.username}")
+            
             del request.session['recuperacao_user_id']
             return redirect('login')
         except User.DoesNotExist:
             return redirect('pedir-recuperacao')
+        
+def form_termos_uso(request):
+    return render(request, 'termos-uso.html')
+
+def form_politica_privacidade(request):
+    return render(request, 'politica-privacidade.html')
+
+@login_required
+def form_perfil(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        nome_completo = request.POST.get('nome_completo')
+        email = request.POST.get('email')
+        senha = request.POST.get('senha')
+
+        user = request.user
+
+        user.username = username
+
+        user.client.nome = nome_completo
+
+        user.client.email = email
+
+        if senha:
+            user.set_password(senha)
+
+            update_session_auth_hash(request, user)
+
+        user.save()
+        user.client.save()
+
+        return redirect('perfil')
+
+    return render(request, 'form-perfil.html')
+
+@login_required
+def form_excluir_conta(request):
+    user = request.user
+    user.delete()
+    return redirect('login')
 
 @login_required
 def form_logout(request):

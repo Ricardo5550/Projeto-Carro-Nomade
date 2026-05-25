@@ -2,7 +2,11 @@
 passenger_wsgi.py 
 .venv
 .env
-db.sqlite3
+*.bak
+*.sqlite3
+certificates/cert.pem
+certificates/key.pem
+*.log
 /static_media
 static_media
 /static_files

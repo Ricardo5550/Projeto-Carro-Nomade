@@ -1,0 +1,49 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <h2 class="mb-4">Meu Perfil</h2>
+    
+    <form action="{% url 'perfil' %}" method="POST" class="col-md-6">
+
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label class="form-label">Nome de Usuário</label>
+
+            <input type="text" class="form-control" name="username" value="{{ user.username }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Nome Completo</label>
+            <input type="text" class="form-control" name="nome_completo" value="{{ user.client.nome }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">E-mail</label>
+            <input type="email" class="form-control" name="email" value="{{ user.client.email }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Nova Senha</label>
+
+            <input type="password" class="form-control" name="senha" placeholder="********">
+            <div class="form-text">Preencha este campo apenas se desejar alterar sua senha atual.</div>
+        </div>
+
+        <input type="submit" class="btn btn-primary mt-4" value="Salvar Alterações">
+    </form>
+
+    <hr class="mt-5 mb-4">
+
+    <div class="card border-danger mb-5 col-md-6">
+        <div class="card-header bg-danger text-white">
+            <strong>Exclusão de Conta</strong>
+        </div>
+        <div class="card-body">
+            <p class="card-text text-muted">Atenção: Ao excluir sua conta, todos os seus dados pessoais, histórico de aluguéis e faturas serão apagados permanentemente de nossos servidores, em cumprimento à LGPD. Esta ação é irreversível.</p>
+            <a href="{% url 'excluir-conta' %}" class="btn btn-outline-danger">Excluir Meus Dados</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

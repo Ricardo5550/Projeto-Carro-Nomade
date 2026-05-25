@@ -158,7 +158,7 @@ EMAIL_PORT = 587  # Usually 587 for TLS or 465 for SSL
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  # Your email address
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Use an App Password for Gmail/Outlook
 
-SECRET_KEY = os.getenv('SECRET_KEY')  # Use a secure, random key in production
+SECRET_KEY = os.getenv('SECRET_KEY', '0f032182fbe04e65c2458d5473a957029a31f8a783f2a10e75c190ba28807cab')  # Use a secure, random key in production
 
 # Security
 EMAIL_USE_TLS = True   # Use True for port 587

@@ -1,0 +1,1 @@
+CREATE DATABASE carro_nomade_db;

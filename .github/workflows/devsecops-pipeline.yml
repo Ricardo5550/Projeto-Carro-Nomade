@@ -23,7 +23,7 @@ jobs:
         path: ./
         base: ""
         head: ""
-        extra_args: --debug --only-verified
+        extra_args: --debug
 
   # Vertente 2: Análise de Vulnerabilidades em Dependências.
   sca-trivy:
